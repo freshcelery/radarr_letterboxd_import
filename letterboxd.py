@@ -71,6 +71,10 @@ class Letterboxd():
         film_image_element = soup.find('img', attrs={'itemprop' : 'image'})
         film_image = film_image_element.get('src')
 
-        tmdb_obj = tvdb_info.TVDB_Info(film_title, tmdb_id, film_image)
+        date_published_element = soup.find('small', attrs={'itemprop' : 'datePublished'})
+        date_anchor = date_published_element.find('a')
+        film_published_date = date_anchor.get_text()
+
+        tmdb_obj = tvdb_info.TVDB_Info(film_title, film_published_date, tmdb_id, film_image)
 
         return tmdb_obj

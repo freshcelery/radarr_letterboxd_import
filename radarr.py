@@ -50,11 +50,15 @@ class Radarr():
     
         payload = {
             'title': tvdb_info.title,
+            'year': tvdb_info.year,
             'qualityProfileId': self.RADARR_QUALITY_PROFILE,
             'rootFolderPath': self.RADARR_ROOT_PATH,
             'tmdbId': tvdb_info.id,
             'titleSlug': tvdb_info.title_slug,
-            'images': [{'covertype':'poster','url':'{}'.format(tvdb_info.poster_url)}]
+            'images': [{'covertype':'poster','url':'{}'.format(tvdb_info.poster_url)}],
+            'addOptions' : {
+                'searchForMovie' : 'true'
+            }
         }
     
         requests.post('{}/api/movie?apikey={}'.format(self.RADARR_API_URL, self.RADARR_API_KEY), data=json.dumps(payload))

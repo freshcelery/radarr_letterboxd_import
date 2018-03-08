@@ -1,1 +1,4 @@
 config.ini
+__pycache__
+letterboxd_films.json
+radarr_films.json
