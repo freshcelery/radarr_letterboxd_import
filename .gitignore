@@ -1,4 +1,7 @@
 config.ini
-__pycache__
+__pycache__/
+.vscode/
+Scripts/
+Lib/
 letterboxd_films.json
 radarr_films.json
