@@ -1,4 +1,10 @@
-import tvdb_info
+"""
+Radarr class used for retrieving movies from Radarr,
+comparing movies to a JSON list of movie titles, and
+adding new movies to Radarr.
+"""
+
+import tmdb_info
 import requests
 import json
 import os
@@ -17,6 +23,8 @@ class Radarr():
         self.RADARR_ROOT_PATH = config.ConfigSectionMap('Radarr')['root_folder_path']
     
     def get_movies(self):
+        """Perform an API Request for all movies in your configured Radarr library"""
+
         radarr_movie_titles = []
 
         radarr_get_url = '{}/api/movie?apikey={}'.format(self.RADARR_API_URL, self.RADARR_API_KEY)
@@ -31,6 +39,7 @@ class Radarr():
         return radarr_movie_titles
 
     def compare_movies_to_json(self, movies):
+        """Compare a list of movies to the Radarr movies JSON and return a list of new movies."""
 
         if os.path.exists(self.RADARR_JSON_PATH):
             with open(self.RADARR_JSON_PATH, 'r') as outfile:
@@ -46,16 +55,17 @@ class Radarr():
         else:
             return movies
 
-    def add_movie_to_radarr(self, tvdb_info):
-    
+    def add_movie_to_radarr(self, tmdb_info):
+        """Perform a POST request to the Radarr API to add a new movie based on a TMDB_Info object."""
+
         payload = {
-            'title': tvdb_info.title,
-            'year': tvdb_info.year,
+            'title': tmdb_info.title,
+            'year': tmdb_info.year,
             'qualityProfileId': self.RADARR_QUALITY_PROFILE,
             'rootFolderPath': self.RADARR_ROOT_PATH,
-            'tmdbId': tvdb_info.id,
-            'titleSlug': tvdb_info.title_slug,
-            'images': [{'covertype':'poster','url':'{}'.format(tvdb_info.poster_url)}],
+            'tmdbId': tmdb_info.id,
+            'titleSlug': tmdb_info.title_slug,
+            'images': [{'covertype':'poster','url':'{}'.format(tmdb_info.poster_url)}],
             'addOptions' : {
                 'searchForMovie' : 'true'
             }
@@ -64,6 +74,7 @@ class Radarr():
         requests.post('{}/api/movie?apikey={}'.format(self.RADARR_API_URL, self.RADARR_API_KEY), data=json.dumps(payload))
     
     def write_to_json(self, movies):
+        """Write new movies to Radarr JSON."""
 
         if os.path.exists(self.RADARR_JSON_PATH):
             with open(self.RADARR_JSON_PATH) as outfile:

@@ -1,4 +1,9 @@
-import tvdb_info
+"""
+Letterboxd class used for parsing letterboxd watchlists
+and creating TMDB(The Movie Database) objects for sending to Radarr.
+"""
+
+import tmdb_info
 import requests
 import os
 import json
@@ -12,9 +17,10 @@ class Letterboxd():
 
         self.LETTERBOXD_USERNAMES_PREFORMATED = config.ConfigSectionMap('Letterboxd')['usernames']
         self.LETTERBOXD_USERNAMES = self.LETTERBOXD_USERNAMES_PREFORMATED.split()
-        self.LETTERBOXD_JSON_PATH = config.ConfigSectionMap('Letterboxd')['movie_storage_path']
     
     def get_watchlist(self):
+        """ Grab all movies from watchlists and return in an array of tmdb_info objects."""
+
         movies = []
         for username in self.LETTERBOXD_USERNAMES:
             letterboxd_page_req = requests.get('https://letterboxd.com/' + username + '/watchlist/')
@@ -42,6 +48,7 @@ class Letterboxd():
         return movies
 
     def compare_movies_to_json(self, movies, json_path):
+        """Compare an array of TMDB_Info object titles to movies stored in JSON."""
 
         if os.path.exists(json_path):
             with open(json_path, 'r') as outfile:
@@ -58,6 +65,7 @@ class Letterboxd():
             return movies
 
     def create_tmdb_obj(self, letterboxd_url):
+        """Create TMDB_Info objects from info parsed from a letterboxd movie page."""
         film_page_request = requests.get(letterboxd_url)
         soup = BeautifulSoup(film_page_request.text, 'html.parser')
 
@@ -75,6 +83,6 @@ class Letterboxd():
         date_anchor = date_published_element.find('a')
         film_published_date = date_anchor.get_text()
 
-        tmdb_obj = tvdb_info.TVDB_Info(film_title, film_published_date, tmdb_id, film_image)
+        tmdb_obj = tmdb_info.TMDB_Info(film_title, film_published_date, tmdb_id, film_image)
 
         return tmdb_obj

@@ -1,4 +1,9 @@
-class TVDB_Info():
+"""
+TMDB_Info class used as a storage container for info needed 
+in order to add a new movie to Radarr.
+"""
+
+class TMDB_Info():
 
     def __init__(self, title, year, tvdb_id, poster_url):
         self.title = title
