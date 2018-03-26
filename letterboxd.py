@@ -23,28 +23,30 @@ class Letterboxd():
 
         movies = []
         for username in self.LETTERBOXD_USERNAMES:
-            letterboxd_page_req = requests.get('https://letterboxd.com/' + username + '/watchlist/')
-            soup = BeautifulSoup(letterboxd_page_req.text , 'html.parser')
+            try:
+                letterboxd_page_req = requests.get('https://letterboxd.com/' + username + '/watchlist/')
+                soup = BeautifulSoup(letterboxd_page_req.text , 'html.parser')
 
-            if(soup.find_all(class_='paginate-page')):
-                num_of_pages = len(soup.find_all(class_='paginate-page'))
+                if(soup.find_all(class_='paginate-page')):
+                    num_of_pages = len(soup.find_all(class_='paginate-page'))
 
-                for page_num in range(1, num_of_pages + 1):
-                    page_request = requests.get('https://letterboxd.com/{}/watchlist/page/{}'.format(username, page_num))
-                    page_soup = BeautifulSoup(page_request.text, 'html.parser')
+                    for page_num in range(1, num_of_pages + 1):
+                        page_request = requests.get('https://letterboxd.com/{}/watchlist/page/{}'.format(username, page_num))
+                        page_soup = BeautifulSoup(page_request.text, 'html.parser')
 
-                    for frame_title in page_soup.find_all('div', class_='film-poster'):
+                        for frame_title in page_soup.find_all('div', class_='film-poster'):
+                            letterboxd_url_sub = frame_title.get('data-film-slug')
+                            letterboxd_film_url = 'https://letterboxd.com{}'.format(letterboxd_url_sub)
+                            tmdb_obj = self.create_tmdb_obj(letterboxd_film_url)
+                            movies.append(tmdb_obj)
+                else:
+                    for frame_title in soup.find_all('div', class_='film-poster'):
                         letterboxd_url_sub = frame_title.get('data-film-slug')
                         letterboxd_film_url = 'https://letterboxd.com{}'.format(letterboxd_url_sub)
                         tmdb_obj = self.create_tmdb_obj(letterboxd_film_url)
                         movies.append(tmdb_obj)
-            else:
-                for frame_title in soup.find_all('div', class_='film-poster'):
-                    letterboxd_url_sub = frame_title.get('data-film-slug')
-                    letterboxd_film_url = 'https://letterboxd.com{}'.format(letterboxd_url_sub)
-                    tmdb_obj = self.create_tmdb_obj(letterboxd_film_url)
-                    movies.append(tmdb_obj)
-
+            except:
+                raise Exception('There was an error retrieving films from Letterboxd')
         return movies
 
     def compare_movies_to_json(self, movies, json_path):

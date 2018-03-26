@@ -5,3 +5,5 @@ Scripts/
 Lib/
 letterboxd_films.json
 radarr_films.json
+
+radarr\.json

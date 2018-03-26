@@ -26,10 +26,13 @@ class Radarr():
         """Perform an API Request for all movies in your configured Radarr library"""
 
         radarr_movie_titles = []
-
-        radarr_get_url = '{}/api/movie?apikey={}'.format(self.RADARR_API_URL, self.RADARR_API_KEY)
-        radarr_page_request = requests.get(radarr_get_url)
-        radarr_movies_json = radarr_page_request.json()
+        try:
+            radarr_get_url = '{}/api/movie?apikey={}'.format(self.RADARR_API_URL, self.RADARR_API_KEY)
+            radarr_page_request = requests.get(radarr_get_url)
+            radarr_movies_json = radarr_page_request.json()
+        except:
+            raise Exception('There was an error retrieving movies from Radarr')
+            
 
         for movie in radarr_movies_json:
             movie_title = json.dumps(movie['title'])
@@ -41,7 +44,7 @@ class Radarr():
     def compare_movies_to_json(self, movies):
         """Compare a list of movies to the Radarr movies JSON and return a list of new movies."""
 
-        if os.path.exists(self.RADARR_JSON_PATH):
+        if os.path.isfile(self.RADARR_JSON_PATH):
             with open(self.RADARR_JSON_PATH, 'r') as outfile:
                 saved_movies = json.load(outfile)
 
@@ -70,12 +73,13 @@ class Radarr():
                 'searchForMovie' : 'true'
             }
         }
-    
-        requests.post('{}/api/movie?apikey={}'.format(self.RADARR_API_URL, self.RADARR_API_KEY), data=json.dumps(payload))
-    
+        try:
+            requests.post('{}/api/movie?apikey={}'.format(self.RADARR_API_URL, self.RADARR_API_KEY), data=json.dumps(payload))
+        except:
+            raise Exception('There was an error performing the Radarr post request')
+
     def write_to_json(self, movies):
         """Write new movies to Radarr JSON."""
-
         if os.path.exists(self.RADARR_JSON_PATH):
             with open(self.RADARR_JSON_PATH) as outfile:
                 data = json.load(outfile)
