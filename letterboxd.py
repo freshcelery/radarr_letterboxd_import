@@ -9,6 +9,7 @@ import os
 import json
 from bs4 import BeautifulSoup
 from config_mapper import ConfigParse
+from log import log_to_file
 
 class Letterboxd():
 
@@ -45,7 +46,8 @@ class Letterboxd():
                         letterboxd_film_url = 'https://letterboxd.com{}'.format(letterboxd_url_sub)
                         tmdb_obj = self.create_tmdb_obj(letterboxd_film_url)
                         movies.append(tmdb_obj)
-            except:
+            except Exception as e:
+                log_to_file('There was an error retrieving films from Letterboxd: {0} \n'.format(e))
                 raise Exception('There was an error retrieving films from Letterboxd')
         return movies
 
@@ -68,23 +70,27 @@ class Letterboxd():
 
     def create_tmdb_obj(self, letterboxd_url):
         """Create TMDB_Info objects from info parsed from a letterboxd movie page."""
-        film_page_request = requests.get(letterboxd_url)
-        soup = BeautifulSoup(film_page_request.text, 'html.parser')
+        try:
+            film_page_request = requests.get(letterboxd_url)
+            soup = BeautifulSoup(film_page_request.text, 'html.parser')
 
-        tmdb_element = soup.find('a', attrs={'data-track-action' : 'TMDb'})
-        tmdb_url = tmdb_element.get('href')
-        tmdb_id = (tmdb_url.split('/movie/',1)[1]).replace('/','')
+            tmdb_element = soup.find('a', attrs={'data-track-action' : 'TMDb'})
+            tmdb_url = tmdb_element.get('href')
+            tmdb_id = (tmdb_url.split('/movie/',1)[1]).replace('/','')
 
-        film_title_element = soup.find('h1', attrs={'itemprop' : 'name'})
-        film_title = film_title_element.get_text()
+            film_title_element = soup.find('h1', attrs={'itemprop' : 'name'})
+            film_title = film_title_element.get_text()
 
-        film_image_element = soup.find('img', attrs={'itemprop' : 'image'})
-        film_image = film_image_element.get('src')
+            film_image_element = soup.find('img', attrs={'itemprop' : 'image'})
+            film_image = film_image_element.get('src')
 
-        date_published_element = soup.find('small', attrs={'itemprop' : 'datePublished'})
-        date_anchor = date_published_element.find('a')
-        film_published_date = date_anchor.get_text()
+            date_published_element = soup.find('small', attrs={'itemprop' : 'datePublished'})
+            date_anchor = date_published_element.find('a')
+            film_published_date = date_anchor.get_text()
 
-        tmdb_obj = tmdb_info.TMDB_Info(film_title, film_published_date, tmdb_id, film_image)
+            tmdb_obj = tmdb_info.TMDB_Info(film_title, film_published_date, tmdb_id, film_image)
 
-        return tmdb_obj
+            return tmdb_obj
+        except Exception as e:
+            log_to_file('Failure while creating tmdb_obj: {0} \n'.format(e))
+            raise Exception('Failure while creating tmdb_obj')
