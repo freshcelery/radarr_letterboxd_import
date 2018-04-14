@@ -25,6 +25,7 @@ class Letterboxd():
         movies = []
         for username in self.LETTERBOXD_USERNAMES:
             try:
+                requests.get('https://letterboxd.com/' + username + '/watchlist/')
                 letterboxd_page_req = requests.get('https://letterboxd.com/' + username + '/watchlist/')
                 soup = BeautifulSoup(letterboxd_page_req.text , 'html.parser')
 
@@ -38,8 +39,12 @@ class Letterboxd():
                         for frame_title in page_soup.find_all('div', class_='film-poster'):
                             letterboxd_url_sub = frame_title.get('data-film-slug')
                             letterboxd_film_url = 'https://letterboxd.com{}'.format(letterboxd_url_sub)
-                            tmdb_obj = self.create_tmdb_obj(letterboxd_film_url)
-                            movies.append(tmdb_obj)
+                            film_page_request = requests.get(letterboxd_film_url, allow_redirects=False)
+                            if (film_page_request.status_code in [200,201,202,203,204,205,206]):
+                                tmdb_obj = self.create_tmdb_obj(film_page_request)
+                                movies.append(tmdb_obj)
+                            else:
+                                log_to_file("{} was unavailable".format(letterboxd_film_url, allow_redirects=False))
                 else:
                     for frame_title in soup.find_all('div', class_='film-poster'):
                         letterboxd_url_sub = frame_title.get('data-film-slug')
@@ -68,11 +73,10 @@ class Letterboxd():
         else:
             return movies
 
-    def create_tmdb_obj(self, letterboxd_url):
+    def create_tmdb_obj(self, letterboxd_response):
         """Create TMDB_Info objects from info parsed from a letterboxd movie page."""
         try:
-            film_page_request = requests.get(letterboxd_url)
-            soup = BeautifulSoup(film_page_request.text, 'html.parser')
+            soup = BeautifulSoup(letterboxd_response.text, 'html.parser')
 
             tmdb_element = soup.find('a', attrs={'data-track-action' : 'TMDb'})
             tmdb_url = tmdb_element.get('href')
@@ -91,6 +95,9 @@ class Letterboxd():
             tmdb_obj = tmdb_info.TMDB_Info(film_title, film_published_date, tmdb_id, film_image)
 
             return tmdb_obj
+        except TypeError as e:
+            log_to_file('TypeError while creating tmdb_obj: {0} \n'.format(e))
         except Exception as e:
             log_to_file('Failure while creating tmdb_obj: {0} \n'.format(e))
+            log_to_file('Exception Args: {0}'.format(e.args))
             raise Exception('Failure while creating tmdb_obj')

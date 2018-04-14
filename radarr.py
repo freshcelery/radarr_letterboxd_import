@@ -29,7 +29,7 @@ class Radarr():
         radarr_movie_titles = []
         try:
             radarr_get_url = '{}/api/movie?apikey={}'.format(self.RADARR_API_URL, self.RADARR_API_KEY)
-            radarr_page_request = requests.get(radarr_get_url)
+            radarr_page_request = requests.get(radarr_get_url, allow_redirects=False)
             radarr_movies_json = radarr_page_request.json()
         except Exception as e:
             log_to_file('There was an error retrieving movies from Radarr: {0} \n'.format(e))

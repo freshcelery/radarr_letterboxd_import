@@ -13,11 +13,11 @@ def main():
     letter = Letterboxd()
     radarr = Radarr()
     
-    letterboxd_movies = letter.get_watchlist()
-
     radarr_movies = radarr.get_movies()
     new_radarr_movies = radarr.compare_movies_to_json(radarr_movies)
     radarr.write_to_json(new_radarr_movies)
+    
+    letterboxd_movies = letter.get_watchlist()
 
     new_movies = letter.compare_movies_to_json(letterboxd_movies, radarr.RADARR_JSON_PATH)
     new_movie_titles = []
