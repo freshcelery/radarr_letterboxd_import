@@ -44,7 +44,7 @@ class Letterboxd():
                                 tmdb_obj = self.create_tmdb_obj(film_page_request)
                                 movies.append(tmdb_obj)
                             else:
-                                log_to_file("{} was unavailable".format(letterboxd_film_url, allow_redirects=False))
+                                log_to_file("{} was unavailable \n".format(letterboxd_film_url, allow_redirects=False))
                 else:
                     for frame_title in soup.find_all('div', class_='film-poster'):
                         letterboxd_url_sub = frame_title.get('data-film-slug')
@@ -99,5 +99,5 @@ class Letterboxd():
             log_to_file('TypeError while creating tmdb_obj: {0} \n'.format(e))
         except Exception as e:
             log_to_file('Failure while creating tmdb_obj: {0} \n'.format(e))
-            log_to_file('Exception Args: {0}'.format(e.args))
+            log_to_file('Exception Args: {0} \n'.format(e.args))
             raise Exception('Failure while creating tmdb_obj')
