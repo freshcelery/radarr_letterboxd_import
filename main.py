@@ -28,10 +28,10 @@ def main():
     new_movie_titles = []
     for movie in new_movies:
         print("Adding Movie: {}".format(movie.title))
-        #radarr.add_movie_to_radarr(movie)
-        #new_movie_titles.append(movie.title)
+        radarr.add_movie_to_radarr(movie)
+        new_movie_titles.append(movie.title)
         
-    #radarr.write_to_json(new_movie_titles)
+    radarr.write_to_json(new_movie_titles)
 if __name__ == '__main__':
     start_time = time.time()
 
