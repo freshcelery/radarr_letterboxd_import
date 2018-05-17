@@ -1,11 +1,14 @@
 """
+A class to hold functions used in both letterboxd_lists and letterboxd_watchlists.
+Functions used for comparing movie lists and creating TMDB objects.
 """
-import tmdb_info
+
 import requests
 import os
 import json
 from bs4 import BeautifulSoup
-from log import log_to_file
+from radarr_letterboxd_import import log
+from radarr_letterboxd_import import tmdb_info
 
 class Letterboxd_Helpers():
     def compare_movies_to_json(self, movies, json_path):
@@ -33,7 +36,7 @@ class Letterboxd_Helpers():
             tmdb_url = tmdb_element.get('href')
             try:
                 if 'tv' in tmdb_url:
-                    log_to_file('Found a TMDB url incompatible with Radarr: {0}.\n'.format(tmdb_url))
+                    log.log_to_file('Found a TMDB url incompatible with Radarr: {0}.\n'.format(tmdb_url))
                     return None    
                 else:
                     tmdb_id = (tmdb_url.split('/movie/',1)[1]).replace('/','')
@@ -49,14 +52,12 @@ class Letterboxd_Helpers():
                 film_published_date = date_anchor.get_text()
 
                 tmdb_obj = tmdb_info.TMDB_Info(film_title, film_published_date, tmdb_id, film_image)
-            except as e:
-                log_to_file('Failed to create: {0} \n'.format(e))
-                return None
+            except Exception as e:
+                log.log_to_file('Failed to create TMDB object from url: {0}'.format(tmdb_url))
 
             return tmdb_obj
         except TypeError as e:
-            log_to_file('TypeError while creating tmdb_obj: {0} \n'.format(e))
+            log.log_to_file('TypeError while parsing letterboxd response: {0} \n'.format(e))
         except Exception as e:
-            log_to_file('Failure while creating tmdb_obj: {0} \n'.format(e))
-            log_to_file('Exception Args: {0} \n'.format(e.args))
-            raise Exception('Failure while creating tmdb_obj')
+            log.log_to_file('Exception Args: {0} \n'.format(e.args))
+            raise Exception('Failure while parsing letterboxd response')
