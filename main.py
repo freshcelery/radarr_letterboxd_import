@@ -5,10 +5,10 @@ the movies found into Radarr if they do not already exist
 
 import sched
 import time
-from letterboxd_watchlist import Letterboxd_Watchlist
-from letterboxd_helpers import Letterboxd_Helpers
-from letterboxd_lists import Letterboxd_Lists
-from radarr import Radarr
+from radarr_letterboxd_import.letterboxd_watchlist import Letterboxd_Watchlist
+from radarr_letterboxd_import.letterboxd_helpers import Letterboxd_Helpers
+from radarr_letterboxd_import.letterboxd_lists import Letterboxd_Lists
+from radarr_letterboxd_import.radarr import Radarr
 
 
 def main():

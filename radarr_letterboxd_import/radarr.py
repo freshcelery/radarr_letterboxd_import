@@ -4,13 +4,13 @@ comparing movies to a JSON list of movie titles, and
 adding new movies to Radarr.
 """
 
-import tmdb_info
 import requests
 import json
 import os
 from bs4 import BeautifulSoup
-from config_mapper import ConfigParse
-from log import log_to_file
+from radarr_letterboxd_import.config_mapper import ConfigParse
+from radarr_letterboxd_import import tmdb_info
+from radarr_letterboxd_import import log
 
 class Radarr():
 
@@ -32,7 +32,7 @@ class Radarr():
             radarr_page_request = requests.get(radarr_get_url, allow_redirects=False)
             radarr_movies_json = radarr_page_request.json()
         except Exception as e:
-            log_to_file('There was an error retrieving movies from Radarr: {0} \n'.format(e))
+            log.log_to_file('There was an error retrieving movies from Radarr: {0} \n'.format(e))
             raise Exception('There was an error retrieving movies from Radarr')
             
 
@@ -78,7 +78,7 @@ class Radarr():
         try:
             requests.post('{}/api/movie?apikey={}'.format(self.RADARR_API_URL, self.RADARR_API_KEY), data=json.dumps(payload))
         except Exception as e:
-            log_to_file('There was an error performing the Radarr post request: {0} \n'.format(e))
+            log.log_to_file('There was an error performing the Radarr post request: {0} \n'.format(e))
             raise Exception('There was an error performing the Radarr post request')
 
     def write_to_json(self, movies):
