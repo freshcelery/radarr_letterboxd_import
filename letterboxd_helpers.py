@@ -31,22 +31,27 @@ class Letterboxd_Helpers():
 
             tmdb_element = soup.find('a', attrs={'data-track-action' : 'TMDb'})
             tmdb_url = tmdb_element.get('href')
-            if 'tv' in tmdb_url:
-                return None    
-            else:
-                tmdb_id = (tmdb_url.split('/movie/',1)[1]).replace('/','')
+            try:
+                if 'tv' in tmdb_url:
+                    log_to_file('Found a TMDB url incompatible with Radarr: {0}.\n'.format(tmdb_url))
+                    return None    
+                else:
+                    tmdb_id = (tmdb_url.split('/movie/',1)[1]).replace('/','')
 
-            film_title_element = soup.find('h1', attrs={'itemprop' : 'name'})
-            film_title = film_title_element.get_text()
+                film_title_element = soup.find('h1', attrs={'itemprop' : 'name'})
+                film_title = film_title_element.get_text()
 
-            film_image_element = soup.find('img', attrs={'itemprop' : 'image'})
-            film_image = film_image_element.get('src')
+                film_image_element = soup.find('img', attrs={'itemprop' : 'image'})
+                film_image = film_image_element.get('src')
 
-            date_published_element = soup.find('small', attrs={'itemprop' : 'datePublished'})
-            date_anchor = date_published_element.find('a')
-            film_published_date = date_anchor.get_text()
+                date_published_element = soup.find('small', attrs={'itemprop' : 'datePublished'})
+                date_anchor = date_published_element.find('a')
+                film_published_date = date_anchor.get_text()
 
-            tmdb_obj = tmdb_info.TMDB_Info(film_title, film_published_date, tmdb_id, film_image)
+                tmdb_obj = tmdb_info.TMDB_Info(film_title, film_published_date, tmdb_id, film_image)
+            except as e:
+                log_to_file('Failed to create: {0} \n'.format(e))
+                return None
 
             return tmdb_obj
         except TypeError as e:
