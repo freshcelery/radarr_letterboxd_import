@@ -33,7 +33,11 @@ class Letterboxd_Helpers():
             soup = BeautifulSoup(letterboxd_response.text, 'html.parser')
 
             tmdb_element = soup.find('a', attrs={'data-track-action' : 'TMDb'})
-            tmdb_url = tmdb_element.get('href')
+            if tmdb_element.get('href'):
+                tmdb_url = tmdb_element.get('href')
+            else:
+                log.log_to_file("failed to get tmdb url")
+                return None
             try:
                 if 'tv' in tmdb_url:
                     log.log_to_file('Found a TMDB url incompatible with Radarr: {0}.\n'.format(tmdb_url))
@@ -54,7 +58,7 @@ class Letterboxd_Helpers():
                 tmdb_obj = tmdb_info.TMDB_Info(film_title, film_published_date, tmdb_id, film_image)
             except Exception as e:
                 log.log_to_file('Failed to create TMDB object from url: {0}'.format(tmdb_url))
-
+                return None
             return tmdb_obj
         except TypeError as e:
             log.log_to_file('TypeError while parsing letterboxd response: {0} \n'.format(e))
